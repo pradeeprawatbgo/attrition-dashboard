@@ -228,7 +228,7 @@ if df is not None:
     
     # Apply filters
     table_df = filtered_df[
-        (filtered_df['Risk Level'].isin(risk_filter)) &
+        # (filtered_df['Risk Level'].isin(risk_filter)) &
         (filtered_df['Attrition Probability'] >= probability_threshold)
     ]
     
