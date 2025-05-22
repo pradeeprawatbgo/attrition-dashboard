@@ -206,25 +206,25 @@ if df is not None:
     st.subheader("👥 Employee List")
     
     # Add filters for the table
-    col1, col2 = st.columns(2)
-    with col1:
-        risk_filter = st.multiselect(
-            "Filter by Risk Level",
-            options=sorted(filtered_df['Risk Level'].unique()),
-            default=sorted(filtered_df['Risk Level'].unique()),
-            key="risk_filter"
-        )
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     risk_filter = st.multiselect(
+    #         "Filter by Risk Level",
+    #         options=sorted(filtered_df['Risk Level'].unique()),
+    #         default=sorted(filtered_df['Risk Level'].unique()),
+    #         key="risk_filter"
+    #     )
     
-    with col2:
-        probability_threshold = st.slider(
-            "Minimum Attrition Probability",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.0,
-            step=0.1,
-            format="%0.1f",
-            key="prob_threshold"
-        )
+    # with col2:
+    #     probability_threshold = st.slider(
+    #         "Minimum Attrition Probability",
+    #         min_value=0.0,
+    #         max_value=1.0,
+    #         value=0.0,
+    #         step=0.1,
+    #         format="%0.1f",
+    #         key="prob_threshold"
+    #     )
     
     # Apply filters
     table_df = filtered_df[
