@@ -233,7 +233,7 @@ if df is not None:
     # ]
     
     # Sort by Attrition Probability
-    table_df = table_df.sort_values('Attrition Probability', ascending=False)
+    table_df = table_df.sort_values(df['Attrition Probability'], ascending=False)
     
     # Add a delete checkbox column
     table_df['Delete'] = False
