@@ -227,10 +227,10 @@ if df is not None:
     #     )
     
     # Apply filters
-    table_df = filtered_df[
-        # (filtered_df['Risk Level'].isin(risk_filter)) &
-        (filtered_df['Attrition Probability'] >= probability_threshold)
-    ]
+    # table_df = filtered_df[
+    #     (filtered_df['Risk Level'].isin(risk_filter)) &
+    #     (filtered_df['Attrition Probability'] >= probability_threshold)
+    # ]
     
     # Sort by Attrition Probability
     table_df = table_df.sort_values('Attrition Probability', ascending=False)
