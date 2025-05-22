@@ -231,9 +231,9 @@ if df is not None:
     #     (filtered_df['Risk Level'].isin(risk_filter)) &
     #     (filtered_df['Attrition Probability'] >= probability_threshold)
     # ]
-    
+    table_df = df.copy()
     # Sort by Attrition Probability
-    table_df = table_df.sort_values(df['Attrition Probability'], ascending=False)
+    table_df = table_df.sort_values('Attrition Probability', ascending=False)
     
     # Add a delete checkbox column
     table_df['Delete'] = False
