@@ -284,7 +284,7 @@ if df is not None:
     )
     
     # --- BUTTONS SECTION ---
-    col_save, _,col_delete = st.columns([1,7.7,1])
+    col_save, _,col_delete = st.columns([1,7,1])
 
     with col_save:
         if st.button("Save Comments"):
