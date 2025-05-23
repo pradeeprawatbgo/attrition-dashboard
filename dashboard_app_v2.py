@@ -4,6 +4,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import time
 from google_sheets_utils import get_sheet_data, update_sheet_data, append_sheet_data
+import numpy as np
 
 # Set page config
 st.set_page_config(
@@ -52,22 +53,39 @@ with st.sidebar:
 def load_data():
     try:
         df = get_sheet_data(SPREADSHEET_ID, TRACKING_SHEET_RANGE)
-        if df is None:
+        if df is None or df.empty:
             st.error("Error loading data from Google Sheet")
             return None
             
-        df['Prediction_Date'] = pd.to_datetime(df['Prediction_Date'])
-        # Convert comment columns to string type
-        df['HR_Comments'] = df['HR_Comments'].astype(str)
-        df['OPS_comments'] = df['OPS_comments'].astype(str)
-        # Replace 'nan' with empty string
+        # Convert date column
+        df['Prediction_Date'] = pd.to_datetime(df['Prediction_Date'], errors='coerce')
+        
+        # Convert comment columns to string type and clean
+        df['HR_Comments'] = df['HR_Comments'].fillna('').astype(str)
+        df['OPS_comments'] = df['OPS_comments'].fillna('').astype(str)
         df['HR_Comments'] = df['HR_Comments'].replace('nan', '')
         df['OPS_comments'] = df['OPS_comments'].replace('nan', '')
         
-        # Convert Attrition Probability to numeric, handling percentage format
+        # Handle Attrition Probability conversion
         if 'Attrition Probability' in df.columns:
-            # Remove % sign if present and convert to float
-            df['Attrition Probability'] = df['Attrition Probability'].astype(str).str.rstrip('%').astype('float') / 100.0
+            # First replace empty strings with NaN
+            df['Attrition Probability'] = df['Attrition Probability'].replace('', np.nan)
+            # Remove % sign if present
+            df['Attrition Probability'] = df['Attrition Probability'].astype(str).str.rstrip('%')
+            # Convert to float, invalid values become NaN
+            df['Attrition Probability'] = pd.to_numeric(df['Attrition Probability'], errors='coerce')
+            # Convert to decimal (divide by 100 if it was a percentage)
+            df['Attrition Probability'] = df['Attrition Probability'].apply(
+                lambda x: x/100 if pd.notnull(x) and x > 1 else x
+            )
+            # Fill NaN with 0
+            df['Attrition Probability'] = df['Attrition Probability'].fillna(0)
+        
+        # Clean other numeric columns
+        numeric_columns = ['SR.No.']
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
         
         return df
     except Exception as e:
