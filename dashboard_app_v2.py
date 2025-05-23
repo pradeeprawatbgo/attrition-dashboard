@@ -204,44 +204,7 @@ if df is not None:
     
     # Employee List
     st.subheader("👥 Employee List")
-    
-    # Add filters for the table
-    col1, col2 = st.columns(2)
-    with col1:
-        risk_filter = st.multiselect(
-            "Filter by Risk Level",
-            options=sorted(filtered_df['Risk Level'].unique()),
-            default=sorted(filtered_df['Risk Level'].unique()),
-            key="risk_filter"
-        )
-    
-    with col2:
-        probability_threshold = st.slider(
-            "Minimum Attrition Probability",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.0,
-            step=0.1,
-            format="%0.1f",
-            key="prob_threshold"
-        )
-    
-    # Apply filters
-    table_df = filtered_df[
-        (filtered_df['Risk Level'].isin(risk_filter)) &
-        (filtered_df['Attrition Probability'] >= probability_threshold)
-    ]
-    
-    # Sort by Attrition Probability
-    table_df = table_df.sort_values('Attrition Probability', ascending=False)
-    
-    # Add a delete checkbox column
-    table_df['Delete'] = False
-    
-    # Display table with selected columns
-    display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments']
-    
+    table_df = df.copy()
     # Format the table
     table_df['Attrition Probability'] = table_df['Attrition Probability'].apply(
         lambda x: f"{float(x):.2%}" if pd.notnull(x) and str(x).strip() != '' else ''
@@ -252,6 +215,10 @@ if df is not None:
     table_df = table_df.reset_index(drop=True)
     table_df.index = table_df.index + 1
     table_df = table_df.reset_index().rename(columns={'index': 'SR.No.'})
+    
+    # Display table with selected columns
+    display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
+                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments']
     
     # Show the table with checkboxes
     edited_df = st.data_editor(
