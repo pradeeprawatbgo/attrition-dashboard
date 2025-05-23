@@ -64,9 +64,10 @@ def load_data():
         df['HR_Comments'] = df['HR_Comments'].replace('nan', '')
         df['OPS_comments'] = df['OPS_comments'].replace('nan', '')
         
-        # Convert numeric columns
+        # Convert Attrition Probability to numeric, handling percentage format
         if 'Attrition Probability' in df.columns:
-            df['Attrition Probability'] = pd.to_numeric(df['Attrition Probability'], errors='coerce')
+            # Remove % sign if present and convert to float
+            df['Attrition Probability'] = df['Attrition Probability'].astype(str).str.rstrip('%').astype('float') / 100.0
         
         return df
     except Exception as e:
@@ -210,27 +211,42 @@ if df is not None:
     with col1:
         risk_filter = st.multiselect(
             "Filter by Risk Level",
-            options=sorted(filtered_df['Risk Level'].unique()),
-            default=sorted(filtered_df['Risk Level'].unique()),
+            options=sorted(df['Risk Level'].unique()),
+            default=sorted(df['Risk Level'].unique()),
             key="risk_filter"
         )
     
     with col2:
+        # Set default range for probability slider
+        min_prob = 0.0
+        max_prob = 1.0
+        default_value = 0.0
+        
+        # Only update if we have valid probability values
+        if df['Attrition Probability'].max() > 0:
+            min_prob = float(df['Attrition Probability'].min())
+            max_prob = float(df['Attrition Probability'].max())
+            default_value = min_prob
+        
         probability_threshold = st.slider(
             "Minimum Attrition Probability",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.0,
-            step=0.1,
-            format="%0.1f",
+            min_value=min_prob,
+            max_value=max_prob,
+            value=default_value,
+            step=0.01,
+            format="%0.2f",
             key="prob_threshold"
         )
     
     # Apply filters
-    table_df = filtered_df[
-        (filtered_df['Risk Level'].isin(risk_filter)) &
-        (filtered_df['Attrition Probability'] >= probability_threshold)
-    ]
+    table_df = df[
+        (df['Risk Level'].isin(risk_filter)) &
+        (df['Attrition Probability'] >= probability_threshold)
+    ].copy()
+    
+    if len(table_df) == 0:
+        st.warning("No data matches the current filters. Please adjust the filters.")
+        st.stop()
     
     # Sort by Attrition Probability
     table_df = table_df.sort_values('Attrition Probability', ascending=False)
@@ -238,20 +254,48 @@ if df is not None:
     # Add a delete checkbox column
     table_df['Delete'] = False
     
+    # Remove existing SR.No. column if it exists
+    if 'SR.No.' in table_df.columns:
+        table_df = table_df.drop('SR.No.', axis=1)
+    
+    # Create SR.No. column
+    table_df.insert(0, 'SR.No.', range(1, len(table_df) + 1))
+    
     # Display table with selected columns
-    display_cols = ['Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                   'Risk Level', 'Triggers', 'Prediction_Date', 'HR_Comments', 'OPS_comments']
+    display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
+                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments']
     
     # Format the table
-    table_df['Attrition Probability'] = table_df['Attrition Probability'].map('{:.2%}'.format)
-    table_df['Prediction_Date'] = table_df['Prediction_Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    table_df['Prediction_Date'] = pd.to_datetime(table_df['Prediction_Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Select only the columns we want to display
+    table_df = table_df[display_cols + ['Delete']]
     
     # Show the table with checkboxes
     edited_df = st.data_editor(
-        table_df[display_cols + ['Delete']],
+        table_df,
         use_container_width=True,
         hide_index=True,
         column_config={
+            "SR.No.": st.column_config.NumberColumn(
+                "SR.No.",
+                help="Serial Number",
+                width="small"
+            ),
+            "Attrition Probability": st.column_config.NumberColumn(
+                "Attrition Probability",
+                help="Probability of attrition",
+                width="medium",
+                format="%.2f%%",
+                step=0.01,
+                min_value=0.0,
+                max_value=1.0
+            ),
+            "Cost Center": st.column_config.TextColumn(
+                "Cost Center",
+                help="Employee's Cost Center",
+                width="medium"
+            ),
             "HR_Comments": st.column_config.TextColumn(
                 "HR Comments",
                 help="Add HR comments here",
