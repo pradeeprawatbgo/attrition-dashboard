@@ -204,17 +204,32 @@ if df is not None:
     
     # Employee List
     st.subheader("👥 Employee List")
+    
+    # Create a copy of the dataframe and ensure all required columns exist
     table_df = df.copy()
+    
+    # Initialize required columns if they don't exist
+    required_columns = ['Employee ID', 'Attrition Prediction', 'Attrition Probability', 
+                       'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 
+                       'HR_Comments', 'OPS_comments']
+    
+    for col in required_columns:
+        if col not in table_df.columns:
+            table_df[col] = ''
+    
     # Format the table
     table_df['Attrition Probability'] = table_df['Attrition Probability'].apply(
         lambda x: f"{float(x):.2%}" if pd.notnull(x) and str(x).strip() != '' else ''
     )
-    table_df['Prediction_Date'] = table_df['Prediction_Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    table_df['Prediction_Date'] = pd.to_datetime(table_df['Prediction_Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
     
     # Add SR.No. column
     table_df = table_df.reset_index(drop=True)
     table_df.index = table_df.index + 1
     table_df = table_df.reset_index().rename(columns={'index': 'SR.No.'})
+    
+    # Add Delete column
+    table_df['Delete'] = False
     
     # Display table with selected columns
     display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
