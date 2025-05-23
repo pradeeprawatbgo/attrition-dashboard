@@ -52,44 +52,73 @@ with st.sidebar:
 @st.cache_data(ttl=30)  # Cache for 30 seconds
 def load_data():
     try:
+        # Step 1: Load data from Google Sheet
         df = get_sheet_data(SPREADSHEET_ID, TRACKING_SHEET_RANGE)
         if df is None or df.empty:
-            st.error("Error loading data from Google Sheet")
+            st.error("No data found in Google Sheet")
             return None
-            
-        # Convert date column
-        df['Prediction_Date'] = pd.to_datetime(df['Prediction_Date'], errors='coerce')
+
+        # Step 2: Create a copy to avoid modifying the original
+        df = df.copy()
         
-        # Convert comment columns to string type and clean
-        df['HR_Comments'] = df['HR_Comments'].fillna('').astype(str)
-        df['OPS_comments'] = df['OPS_comments'].fillna('').astype(str)
-        df['HR_Comments'] = df['HR_Comments'].replace('nan', '')
-        df['OPS_comments'] = df['OPS_comments'].replace('nan', '')
-        
-        # Handle Attrition Probability conversion
-        if 'Attrition Probability' in df.columns:
-            # First replace empty strings with NaN
-            df['Attrition Probability'] = df['Attrition Probability'].replace('', np.nan)
-            # Remove % sign if present
-            df['Attrition Probability'] = df['Attrition Probability'].astype(str).str.rstrip('%')
-            # Convert to float, invalid values become NaN
-            df['Attrition Probability'] = pd.to_numeric(df['Attrition Probability'], errors='coerce')
-            # Convert to decimal (divide by 100 if it was a percentage)
-            df['Attrition Probability'] = df['Attrition Probability'].apply(
-                lambda x: x/100 if pd.notnull(x) and x > 1 else x
-            )
-            # Fill NaN with 0
-            df['Attrition Probability'] = df['Attrition Probability'].fillna(0)
-        
-        # Clean other numeric columns
-        numeric_columns = ['SR.No.']
-        for col in numeric_columns:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-        
+        # Step 3: Handle date column
+        try:
+            df['Prediction_Date'] = pd.to_datetime(df['Prediction_Date'], errors='coerce')
+        except Exception as e:
+            st.error(f"Error converting dates: {str(e)}")
+            return None
+
+        # Step 4: Handle comment columns
+        try:
+            for col in ['HR_Comments', 'OPS_comments']:
+                if col in df.columns:
+                    df[col] = df[col].fillna('')
+                    df[col] = df[col].astype(str)
+                    df[col] = df[col].replace('nan', '')
+        except Exception as e:
+            st.error(f"Error processing comments: {str(e)}")
+            return None
+
+        # Step 5: Handle Attrition Probability
+        try:
+            if 'Attrition Probability' in df.columns:
+                # Convert to string first
+                df['Attrition Probability'] = df['Attrition Probability'].astype(str)
+                
+                # Remove % signs and clean
+                df['Attrition Probability'] = df['Attrition Probability'].str.replace('%', '')
+                
+                # Replace empty strings and 'nan' with 0
+                df['Attrition Probability'] = df['Attrition Probability'].replace(['', 'nan', 'NaN', 'None'], '0')
+                
+                # Convert to float
+                df['Attrition Probability'] = pd.to_numeric(df['Attrition Probability'], errors='coerce')
+                
+                # Convert percentages to decimals if needed
+                df['Attrition Probability'] = df['Attrition Probability'].apply(
+                    lambda x: x/100 if pd.notnull(x) and x > 1 else x
+                )
+                
+                # Fill any remaining NaN with 0
+                df['Attrition Probability'] = df['Attrition Probability'].fillna(0)
+        except Exception as e:
+            st.error(f"Error processing Attrition Probability: {str(e)}")
+            return None
+
+        # Step 6: Handle other numeric columns
+        try:
+            numeric_columns = ['SR.No.']
+            for col in numeric_columns:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        except Exception as e:
+            st.error(f"Error processing numeric columns: {str(e)}")
+            return None
+
         return df
+
     except Exception as e:
-        st.error(f"Error loading data: {str(e)}")
+        st.error(f"Unexpected error loading data: {str(e)}")
         return None
 
 # Clear cache when needed
@@ -99,7 +128,7 @@ def clear_cache():
 # Load data
 df = load_data()
 
-if df is not None:
+if df is not None and not df.empty:
     # Date filter
     col1, col2 = st.columns(2)
     
