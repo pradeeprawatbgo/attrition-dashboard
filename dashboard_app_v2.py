@@ -243,7 +243,9 @@ if df is not None:
                    'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments']
     
     # Format the table
-    table_df['Attrition Probability'] = table_df['Attrition Probability'].map('{:.2%}'.format)
+    table_df['Attrition Probability'] = table_df['Attrition Probability'].apply(
+        lambda x: f"{float(x):.2%}" if pd.notnull(x) and str(x).strip() != '' else ''
+    )
     table_df['Prediction_Date'] = table_df['Prediction_Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
     
     # Add SR.No. column
@@ -261,6 +263,11 @@ if df is not None:
                 "SR.No.",
                 help="Serial Number",
                 width="small"
+            ),
+            "Attrition Probability": st.column_config.TextColumn(
+                "Attrition Probability",
+                help="Probability of attrition",
+                width="medium"
             ),
             "Cost Center": st.column_config.TextColumn(
                 "Cost Center",
