@@ -205,35 +205,46 @@ if df is not None:
     # Employee List
     st.subheader("👥 Employee List")
     
-    # Create a copy of the dataframe and ensure all required columns exist
-    table_df = df.copy()
+    # Add filters for the table
+    col1, col2 = st.columns(2)
+    with col1:
+        risk_filter = st.multiselect(
+            "Filter by Risk Level",
+            options=sorted(filtered_df['Risk Level'].unique()),
+            default=sorted(filtered_df['Risk Level'].unique()),
+            key="risk_filter"
+        )
     
-    # Initialize required columns if they don't exist
-    required_columns = ['Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                       'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 
-                       'HR_Comments', 'OPS_comments']
+    with col2:
+        probability_threshold = st.slider(
+            "Minimum Attrition Probability",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.0,
+            step=0.1,
+            format="%0.1f",
+            key="prob_threshold"
+        )
     
-    for col in required_columns:
-        if col not in table_df.columns:
-            table_df[col] = ''
+    # Apply filters
+    table_df = filtered_df[
+        (filtered_df['Risk Level'].isin(risk_filter)) &
+        (filtered_df['Attrition Probability'] >= probability_threshold)
+    ]
     
-    # Format the table
-    table_df['Attrition Probability'] = table_df['Attrition Probability'].apply(
-        lambda x: f"{float(x):.2%}" if pd.notnull(x) and str(x).strip() != '' else ''
-    )
-    table_df['Prediction_Date'] = pd.to_datetime(table_df['Prediction_Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+    # Sort by Attrition Probability
+    table_df = table_df.sort_values('Attrition Probability', ascending=False)
     
-    # Add SR.No. column
-    table_df = table_df.reset_index(drop=True)
-    table_df.index = table_df.index + 1
-    table_df = table_df.reset_index().rename(columns={'index': 'SR.No.'})
-    
-    # Add Delete column
+    # Add a delete checkbox column
     table_df['Delete'] = False
     
     # Display table with selected columns
-    display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments']
+    display_cols = ['Employee ID', 'Attrition Prediction', 'Attrition Probability', 
+                   'Risk Level', 'Triggers', 'Prediction_Date', 'HR_Comments', 'OPS_comments']
+    
+    # Format the table
+    table_df['Attrition Probability'] = table_df['Attrition Probability'].map('{:.2%}'.format)
+    table_df['Prediction_Date'] = table_df['Prediction_Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
     
     # Show the table with checkboxes
     edited_df = st.data_editor(
@@ -241,21 +252,6 @@ if df is not None:
         use_container_width=True,
         hide_index=True,
         column_config={
-            "SR.No.": st.column_config.NumberColumn(
-                "SR.No.",
-                help="Serial Number",
-                width="small"
-            ),
-            "Attrition Probability": st.column_config.TextColumn(
-                "Attrition Probability",
-                help="Probability of attrition",
-                width="medium"
-            ),
-            "Cost Center": st.column_config.TextColumn(
-                "Cost Center",
-                help="Employee's Cost Center",
-                width="medium"
-            ),
             "HR_Comments": st.column_config.TextColumn(
                 "HR Comments",
                 help="Add HR comments here",
