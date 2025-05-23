@@ -207,46 +207,47 @@ if df is not None:
     st.subheader("👥 Employee List")
     
     # Add filters for the table
-    col1, col2 = st.columns(2)
-    with col1:
-        risk_filter = st.multiselect(
-            "Filter by Risk Level",
-            options=sorted(df['Risk Level'].unique()),
-            default=sorted(df['Risk Level'].unique()),
-            key="risk_filter"
-        )
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     risk_filter = st.multiselect(
+    #         "Filter by Risk Level",
+    #         options=sorted(df['Risk Level'].unique()),
+    #         default=sorted(df['Risk Level'].unique()),
+    #         key="risk_filter"
+    #     )
     
-    with col2:
-        # Set default range for probability slider
-        min_prob = 0.0
-        max_prob = 1.0
-        default_value = 0.0
+    # with col2:
+    #     # Set default range for probability slider
+    #     min_prob = 0.0
+    #     max_prob = 1.0
+    #     default_value = 0.0
         
         # Only update if we have valid probability values
-        if df['Attrition Probability'].max() > 0:
-            min_prob = float(df['Attrition Probability'].min())
-            max_prob = float(df['Attrition Probability'].max())
-            default_value = min_prob
+        # if df['Attrition Probability'].max() > 0:
+        #     min_prob = float(df['Attrition Probability'].min())
+        #     max_prob = float(df['Attrition Probability'].max())
+        #     default_value = min_prob
         
-        probability_threshold = st.slider(
-            "Minimum Attrition Probability",
-            min_value=min_prob,
-            max_value=max_prob,
-            value=default_value,
-            step=0.01,
-            format="%0.2f",
-            key="prob_threshold"
-        )
+        # probability_threshold = st.slider(
+        #     "Minimum Attrition Probability",
+        #     min_value=min_prob,
+        #     max_value=max_prob,
+        #     value=default_value,
+        #     step=0.01,
+        #     format="%0.2f",
+        #     key="prob_threshold"
+        # )
     
     # Apply filters
-    table_df = df[
-        (df['Risk Level'].isin(risk_filter)) &
-        (df['Attrition Probability'] >= probability_threshold)
-    ].copy()
+    # table_df = df[
+    #     (df['Risk Level'].isin(risk_filter)) &
+    #     (df['Attrition Probability'] >= probability_threshold)
+    # ].copy()
     
-    if len(table_df) == 0:
-        st.warning("No data matches the current filters. Please adjust the filters.")
-        st.stop()
+    # if len(table_df) == 0:
+    #     st.warning("No data matches the current filters. Please adjust the filters.")
+    #     st.stop()
+    table_df = df.copy()
     
     # Sort by Attrition Probability
     table_df = table_df.sort_values('Attrition Probability', ascending=False)
