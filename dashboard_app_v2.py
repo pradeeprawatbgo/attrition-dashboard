@@ -239,8 +239,8 @@ if df is not None:
     table_df['Delete'] = False
     
     # Display table with selected columns
-    display_cols = ['Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                   'Risk Level', 'Triggers', 'Prediction_Date', 'HR_Comments', 'OPS_comments']
+    display_cols = ['SR.No.','Employee ID', 'Attrition Prediction', 'Attrition Probability', 
+                   'Risk Level', 'Triggers', 'Prediction_Date', 'HR_Comments', 'OPS_comments', 'Cost Center']
     
     # Format the table
     table_df['Attrition Probability'] = table_df['Attrition Probability'].map('{:.2%}'.format)
