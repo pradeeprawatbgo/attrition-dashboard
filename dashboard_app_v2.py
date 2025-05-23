@@ -207,47 +207,46 @@ if df is not None:
     st.subheader("👥 Employee List")
     
     # Add filters for the table
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     risk_filter = st.multiselect(
-    #         "Filter by Risk Level",
-    #         options=sorted(df['Risk Level'].unique()),
-    #         default=sorted(df['Risk Level'].unique()),
-    #         key="risk_filter"
-    #     )
+    col1, col2 = st.columns(2)
+    with col1:
+        risk_filter = st.multiselect(
+            "Filter by Risk Level",
+            options=sorted(df['Risk Level'].unique()),
+            default=sorted(df['Risk Level'].unique()),
+            key="risk_filter"
+        )
     
-    # with col2:
-    #     # Set default range for probability slider
-    #     min_prob = 0.0
-    #     max_prob = 1.0
-    #     default_value = 0.0
+    with col2:
+        # Set default range for probability slider
+        min_prob = 0.0
+        max_prob = 1.0
+        default_value = 0.0
         
         # Only update if we have valid probability values
-        # if df['Attrition Probability'].max() > 0:
-        #     min_prob = float(df['Attrition Probability'].min())
-        #     max_prob = float(df['Attrition Probability'].max())
-        #     default_value = min_prob
+        if df['Attrition Probability'].max() > 0:
+            min_prob = float(df['Attrition Probability'].min())
+            max_prob = float(df['Attrition Probability'].max())
+            default_value = min_prob
         
-        # probability_threshold = st.slider(
-        #     "Minimum Attrition Probability",
-        #     min_value=min_prob,
-        #     max_value=max_prob,
-        #     value=default_value,
-        #     step=0.01,
-        #     format="%0.2f",
-        #     key="prob_threshold"
-        # )
+        probability_threshold = st.slider(
+            "Minimum Attrition Probability",
+            min_value=min_prob,
+            max_value=max_prob,
+            value=default_value,
+            step=0.01,
+            format="%0.2f",
+            key="prob_threshold"
+        )
     
     # Apply filters
-    # table_df = df[
-    #     (df['Risk Level'].isin(risk_filter)) &
-    #     (df['Attrition Probability'] >= probability_threshold)
-    # ].copy()
+    table_df = df[
+        (df['Risk Level'].isin(risk_filter)) &
+        (df['Attrition Probability'] >= probability_threshold)
+    ].copy()
     
-    # if len(table_df) == 0:
-    #     st.warning("No data matches the current filters. Please adjust the filters.")
-    #     st.stop()
-    table_df = df.copy()
+    if len(table_df) == 0:
+        st.warning("No data matches the current filters. Please adjust the filters.")
+        st.stop()
     
     # Sort by Attrition Probability
     table_df = table_df.sort_values('Attrition Probability', ascending=False)
@@ -327,12 +326,31 @@ if df is not None:
                     st.error("Error loading current data from Google Sheet")
                     st.stop()
                 
+                # Convert Prediction_Date to datetime for comparison
+                current_df['Prediction_Date'] = pd.to_datetime(current_df['Prediction_Date'])
+                edited_df['Prediction_Date'] = pd.to_datetime(edited_df['Prediction_Date'])
+                
                 # Update comments in the dataframe
                 for idx, row in edited_df.iterrows():
                     mask = (current_df['Employee ID'] == row['Employee ID']) & \
                            (current_df['Prediction_Date'] == row['Prediction_Date'])
-                    current_df.loc[mask, 'HR_Comments'] = row['HR_Comments']
-                    current_df.loc[mask, 'OPS_comments'] = row['OPS_comments']
+                    if mask.any():
+                        current_df.loc[mask, 'HR_Comments'] = str(row['HR_Comments'])
+                        current_df.loc[mask, 'OPS_comments'] = str(row['OPS_comments'])
+                
+                # Convert timestamp to string format before saving
+                current_df['Prediction_Date'] = current_df['Prediction_Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+                
+                # Clean and format the data
+                current_df = current_df.fillna('')  # Replace NaN with empty string
+                
+                # Convert numeric columns to string format
+                if 'Attrition Probability' in current_df.columns:
+                    # First convert to numeric, then format as percentage
+                    current_df['Attrition Probability'] = pd.to_numeric(current_df['Attrition Probability'], errors='coerce')
+                    current_df['Attrition Probability'] = current_df['Attrition Probability'].apply(
+                        lambda x: f"{x:.2%}" if pd.notnull(x) else ''
+                    )
                 
                 # Save back to Google Sheet
                 if update_sheet_data(SPREADSHEET_ID, TRACKING_SHEET_RANGE, current_df):
