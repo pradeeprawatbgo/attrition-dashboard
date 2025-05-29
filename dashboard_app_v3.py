@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import time
-from google_sheets_utils_v2 import get_sheet_data, update_sheet_data, append_sheet_data
+from google_sheets_utils import get_sheet_data, update_sheet_data, append_sheet_data
 
 # Set page config
 st.set_page_config(
