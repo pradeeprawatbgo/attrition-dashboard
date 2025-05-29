@@ -275,7 +275,7 @@ if df is not None:
     
     # Display table with selected columns
     display_cols = ['SR.No.', 'Employee ID', 'Attrition Prediction', 'Attrition Probability', 
-                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments','Regrettable']
+                   'Risk Level', 'Triggers', 'Prediction_Date', 'Cost Center', 'HR_Comments', 'OPS_comments','Regrettable Y/N']
     
     # Format the table
     table_df['Prediction_Date'] = pd.to_datetime(table_df['Prediction_Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
