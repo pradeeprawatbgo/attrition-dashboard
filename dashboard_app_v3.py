@@ -254,7 +254,8 @@ if df is not None:
     #     (df['Risk Level'].isin(risk_filter)) &
     #     (df['Attrition Probability'] >= probability_threshold)
     # ].copy()
-    table_df = df.copy()
+    # table_df = df.copy()
+    table_df = filtered_df.copy()
     
     if len(table_df) == 0:
         st.warning("No data matches the current filters. Please adjust the filters.")
