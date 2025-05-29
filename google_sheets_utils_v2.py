@@ -108,6 +108,11 @@ def update_sheet_data(spreadsheet_id, range_name, df):
         # Convert DataFrame to list of lists
         values = [df.columns.tolist()] + df.values.tolist()
         
+        # Debug output
+        # st.write("[update_sheet_data] Values to be sent:", values[:3])  # Show only first 2 rows for brevity
+        # st.write("[update_sheet_data] Number of rows to send (including header):", len(values))
+        # st.write("[update_sheet_data] Number of columns:", len(df.columns))
+        
         body = {
             'values': values
         }
@@ -120,10 +125,13 @@ def update_sheet_data(spreadsheet_id, range_name, df):
             body=body
         ).execute()
         
+        # st.write("[update_sheet_data] Google API response:", result)
+        
         return True
         
     except Exception as e:
         st.error(f"Error updating Google Sheet: {str(e)}")
+        st.error("Full error details:", str(e.__class__.__name__))
         return False
 
 def append_sheet_data(spreadsheet_id, range_name, df):
