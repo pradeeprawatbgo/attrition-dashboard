@@ -322,7 +322,7 @@ if df is not None:
     table_df.insert(0, 'SR.No.', range(1, len(table_df) + 1))
     
     # Display table with selected columns
-    display_cols = ['SR.No.', 'Date of Report Generation','Employee ID','Employee Name','Cost Center','Attrition Prediction', 'Attrition Probability', 
+    display_cols = ['SR.No.', 'Date of Report Generation','Employee ID','Employee Name','Cost Center','Attrition Prediction', 'Actual Status','Attrition Probability', 
                    'Risk Level', 'Tenure Bucket (Today Based)','Triggers', 'HR_Comments', 'OPS_comments','Regrettable Y/N']
     
     # Format the table
