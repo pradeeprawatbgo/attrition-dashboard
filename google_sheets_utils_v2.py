@@ -8,7 +8,7 @@ def get_google_sheets_credentials():
     try:
         # Debug: Print available secrets keys
         # st.write("Available secrets keys:", list(st.secrets.keys()))
-        
+         
         # Get the service account info from secrets
         service_account_info = {
             "type": st.secrets["gcp_service_account"]["type"],

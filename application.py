@@ -36,7 +36,7 @@ with st.sidebar:
     - Risk level distribution
     - Detailed employee list
     - Historical trends
-    """)
+    """) 
 
 # Function to load and process data
 @st.cache_data(ttl=30)  # Cache for 30 seconds
