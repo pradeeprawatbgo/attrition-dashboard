@@ -49,11 +49,11 @@ tabs = st.tabs([
 ])
 
 # Helper function to display PDF in Streamlit
-def show_pdf(file_path):
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf"></iframe>'
-    st.markdown(pdf_display, unsafe_allow_html=True)
+# def show_pdf(file_path):
+#     with open(file_path, "rb") as f:
+#         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+#     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf"></iframe>'
+#     st.markdown(pdf_display, unsafe_allow_html=True)
 
 # --- Tab 1: PPT Slide ---
 with tabs[0]:
@@ -65,12 +65,12 @@ with tabs[0]:
 with tabs[1]:
     # st.header("HR Framework")
     try:
-        # st.image("static/hr_Slide1.png", use_container_width=True)
-        # st.image("static/hr_Slide2.png", use_container_width=True)
-        # st.image("static/hr_Slide3.png", use_container_width=True)
-        # st.image("static/hr_Slide4.png", use_container_width=True)
-        # st.image("static/hr_Slide5.png", use_container_width=True)
-        show_pdf("static/hr_framework.pdf")
+        # show_pdf("static/hr_framework.pdf")
+        pdf_url = "https://attrition-prediction-dashboard.streamlit.app/static/hr_framework.pdf"
+        st.markdown(
+            f'<iframe src="https://docs.google.com/gview?url={pdf_url}&embedded=true" width="100%" height="800px"></iframe>',
+            unsafe_allow_html=True
+        )
     except Exception as e:
         st.warning(f"Could not display PDF: {e}")
 
