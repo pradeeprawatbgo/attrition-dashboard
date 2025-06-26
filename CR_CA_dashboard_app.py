@@ -67,10 +67,11 @@ with tabs[1]:
     try:
         # show_pdf("static/hr_framework.pdf")
         pdf_url = "https://attrition-prediction-dashboard.streamlit.app/static/hr_framework.pdf"
-        st.markdown(
-            f'<iframe src="https://docs.google.com/gview?url={pdf_url}&embedded=true" width="100%" height="800px"></iframe>',
-            unsafe_allow_html=True
-        )
+        show_pdf("pdf_url")
+        # st.markdown(
+        #     f'<iframe src="https://docs.google.com/gview?url={pdf_url}&embedded=true" width="100%" height="800px"></iframe>',
+        #     unsafe_allow_html=True
+        # )
     except Exception as e:
         st.warning(f"Could not display PDF: {e}")
 
