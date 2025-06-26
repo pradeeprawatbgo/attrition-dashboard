@@ -4,7 +4,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import time
 import base64
-from google_sheets_utils_v2 import cr_get_sheet_data, ca_get_sheet_data, cr_update_sheet_data, ca_update_sheet_data,cr_append_sheet_data,ca_append_sheet_data
+from google_sheets_utils_v3 import cr_get_sheet_data, ca_get_sheet_data, cr_update_sheet_data, ca_update_sheet_data,cr_append_sheet_data,ca_append_sheet_data
 
 # Set page config
 st.set_page_config(
